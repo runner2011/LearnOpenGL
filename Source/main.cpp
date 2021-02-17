@@ -1,24 +1,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <fstream>
 
 //VERTEX SHADER
-//TODO make a vertex shader file
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-
+char* vertexShaderSource;
 //Fragment SHADER
-//TODO make a fragment shader file
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-"}\n\0";
+char* fragmentShaderSource;
 
 // link shaders
 unsigned int shaderProgram;
@@ -133,8 +121,39 @@ void SetupApplicationData()
 	glBindVertexArray(0);
 }
 
+
+/* A simple function that will read a file into an allocated char pointer buffer */
+char* filetobuf(const char* filename)
+{
+	using namespace std;
+	fstream file;
+	streampos size;
+	char* memblock;
+	file.open(filename, ios::in);
+
+	if (!file) {
+		cout << "No such file";
+		return 0;
+	}
+	else {
+
+		size = file.tellg();
+		memblock = new char[size];
+		file.seekg(0, ios::beg);
+		file.read(memblock, size);
+		file.close();
+
+	}
+	file.close();
+	return memblock;
+}
+
 int main()
 {
+	vertexShaderSource = filetobuf("../Source/VertexShaderFile.vert");
+	fragmentShaderSource = filetobuf("../Source/FragmentShaderFile.frag");
+
+
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

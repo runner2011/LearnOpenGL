@@ -3,10 +3,40 @@
 #include <iostream>
 #include <fstream>
 
-//VERTEX SHADER
-char* vertexShaderSource;
-//Fragment SHADER
-char* fragmentShaderSource;
+
+//const char* vertexShaderSource = "#version 330 core\n"
+//"layout (location = 0) in vec3 aPos;\n"
+//"//layout (location = 1) in vec3 aColor;\n"
+//"//out vec3 ourColor;\n"
+//"void main()\n"
+//"{\n"
+//"   gl_Position = vec4(aPos, 1.0);\n"
+//"   //ourColor = aColor;\n"
+//"}\0";
+//
+//const char* fragmentShaderSource = "#version 330 core\n"
+//"out vec4 FragColor;\n"
+//"uniform vec4 ourColor;\n"
+//"void main()\n"
+//"{\n"
+//"   FragColor = ourColor\n"
+//"}\n\0";
+
+
+const char* vertexShaderSource = "#version 330 core\n"
+"layout (location = 0) in vec3 aPos;\n"
+"void main()\n"
+"{\n"
+"   gl_Position = vec4(aPos, 1.0);\n"
+"}\0";
+
+const char* fragmentShaderSource = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"uniform vec4 ourColor;\n"
+"void main()\n"
+"{\n"
+"   FragColor = ourColor;\n"
+"}\n\0";
 
 // link shaders
 unsigned int shaderProgram;
@@ -150,8 +180,8 @@ char* filetobuf(const char* filename)
 
 int main()
 {
-	vertexShaderSource = filetobuf("../Source/VertexShaderFile.vert");
-	fragmentShaderSource = filetobuf("../Source/FragmentShaderFile.frag");
+	//vertexShaderSource = filetobuf("../Source/VertexShaderFile.vert");
+	//fragmentShaderSource = filetobuf("../Source/FragmentShaderFile.frag");
 
 
 	// glfw: initialize and configure
@@ -197,6 +227,13 @@ int main()
 
 		// draw our first triangle
 		glUseProgram(shaderProgram);
+
+		// update the uniform color
+		float timeValue = (float)glfwGetTime();
+		float greenValue = sin(timeValue) / 2.0f + 0.5f;
+		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
 		glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		// glBindVertexArray(0); // no need to unbind it every time 

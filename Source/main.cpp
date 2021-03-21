@@ -2,25 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <fstream>
+#include "Shader_s.h"
 
 
-//const char* vertexShaderSource = "#version 330 core\n"
-//"layout (location = 0) in vec3 aPos;\n"
-//"//layout (location = 1) in vec3 aColor;\n"
-//"//out vec3 ourColor;\n"
-//"void main()\n"
-//"{\n"
-//"   gl_Position = vec4(aPos, 1.0);\n"
-//"   //ourColor = aColor;\n"
-//"}\0";
-//
-//const char* fragmentShaderSource = "#version 330 core\n"
-//"out vec4 FragColor;\n"
-//"uniform vec4 ourColor;\n"
-//"void main()\n"
-//"{\n"
-//"   FragColor = ourColor\n"
-//"}\n\0";
 
 
 const char* vertexShaderSource = "#version 330 core\n"
@@ -184,10 +168,11 @@ int main()
 		return -1;
 	}
 
-	Build_and_Compile_shader_program();
+	//Build_and_Compile_shader_program();
+	Shader ourShader("VertexShaderFile.vs", "FragmentShaderFile.fs");
 	SetupApplicationData();
 
-
+	
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -199,13 +184,13 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// draw our first triangle
-		glUseProgram(shaderProgram);
+		ourShader.use();
 
 		// update the uniform color
-		float timeValue = (float)glfwGetTime();
+		/*float timeValue = (float)glfwGetTime();
 		float greenValue = sin(timeValue) / 2.0f + 0.5f;
 		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);*/
 
 		glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 

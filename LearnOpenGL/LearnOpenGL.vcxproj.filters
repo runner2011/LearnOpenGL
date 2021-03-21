@@ -23,10 +23,15 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Source\FragmentShaderFile.frag">
+    <ClInclude Include="..\Source\Shader_s.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Source\FragmentShaderFile.fs">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\Source\VertexShaderFile.vert">
+    <None Include="..\Source\VertexShaderFile.vs">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

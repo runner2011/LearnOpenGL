@@ -23,9 +23,6 @@
     <ClCompile Include="..\Source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Source\Shader_s.h" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\Source\FragmentShaderFile.fs" />
     <None Include="..\Source\VertexShaderFile.vs" />
   </ItemGroup>

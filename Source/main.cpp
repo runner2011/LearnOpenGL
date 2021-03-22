@@ -2,7 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <fstream>
-#include "Shader_s.h"
+#include <LearnOpenGL/Shader_s.h>
 
 
 
@@ -169,7 +169,8 @@ int main()
 	}
 
 	//Build_and_Compile_shader_program();
-	Shader ourShader("VertexShaderFile.vs", "FragmentShaderFile.fs");
+	Shader ourShader("../Source/VertexShaderFile.vs", "../Source/FragmentShaderFile.fs");
+	//Build_and_Compile_shader_program();
 	SetupApplicationData();
 
 	
@@ -185,6 +186,7 @@ int main()
 
 		// draw our first triangle
 		ourShader.use();
+		//glUseProgram(shaderProgram);
 
 		// update the uniform color
 		/*float timeValue = (float)glfwGetTime();

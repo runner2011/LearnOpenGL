@@ -15,7 +15,7 @@ unsigned int shaderProgram;
 
 unsigned int VBO, VAO, EBO;
 
-unsigned int texture;
+unsigned int texture1, texture2;
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -31,31 +31,37 @@ void processInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 }
 
-void SetupApplicationData()
+void SetupTexture(const char* path, unsigned int& referenceID, GLint internalFormat, GLenum format)
 {
-
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glGenTextures(1, &referenceID);
+	glBindTexture(GL_TEXTURE_2D, referenceID);
 	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	// set the texture filtering parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	int width, height, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load("../Res/plate_15_the_dawn_character.jpg", &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
 	if (data)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		//glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
 	{
-		std::cout << "Failed to load texture" << std::endl;
+		std::cout << "Failed to load texture " + *path << std::endl;
 	}
 	stbi_image_free(data);
+}
+
+void SetupApplicationData()
+{
+	SetupTexture("../Res/container.jgp", texture1, GL_RGB, GL_RGB);
+	SetupTexture("../Res/awesomeface.png", texture2, GL_RGBA, GL_RGBA);
+	
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
@@ -140,6 +146,14 @@ int main()
 	Shader ourShader("../Source/VertexShaderFile.vs", "../Source/FragmentShaderFile.fs");
 	SetupApplicationData();
 
+	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
+	// -------------------------------------------------------------------------------------------
+	ourShader.use(); // don't forget to activate/use the shader before setting uniforms!
+	// either set it manually like so:
+	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
+	// or set it via the texture class
+	ourShader.setInt("texture2", 1);
+
 	
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -154,11 +168,16 @@ int main()
 		// bind texture
 		//glBindTexture(GL_TEXTURE_2D, texture);
 
+		// bind textures on corresponding texture units
+		/*glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture2);*/
+
 		// draw our first triangle
 		ourShader.use();
 
 		glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		// check and call events and swap the buffers

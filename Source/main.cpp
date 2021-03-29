@@ -59,7 +59,7 @@ void SetupTexture(const char* path, unsigned int& referenceID, GLint internalFor
 
 void SetupApplicationData()
 {
-	SetupTexture("../Res/container.jgp", texture1, GL_RGB, GL_RGB);
+	SetupTexture("../Res/container.jpg", texture1, GL_RGB, GL_RGB);
 	SetupTexture("../Res/awesomeface.png", texture2, GL_RGBA, GL_RGBA);
 	
 
@@ -169,10 +169,10 @@ int main()
 		//glBindTexture(GL_TEXTURE_2D, texture);
 
 		// bind textures on corresponding texture units
-		/*glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);*/
+		glBindTexture(GL_TEXTURE_2D, texture2);
 
 		// draw our first triangle
 		ourShader.use();

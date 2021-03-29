@@ -17,6 +17,8 @@ unsigned int VBO, VAO, EBO;
 
 unsigned int texture1, texture2;
 
+float mix_tex1 = 0.8f;
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -29,6 +31,14 @@ void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	else if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		mix_tex1 = mix_tex1 >= 1 ? 1 : mix_tex1 + 0.01f;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		mix_tex1 = mix_tex1 <= 0 ? 0 : mix_tex1 - 0.01f;
+	}
 }
 
 void SetupTexture(const char* path, unsigned int& referenceID, GLint internalFormat, GLenum format)
@@ -39,8 +49,8 @@ void SetupTexture(const char* path, unsigned int& referenceID, GLint internalFor
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	// set the texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	int width, height, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
@@ -173,6 +183,8 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
+
+		glUniform1f(glGetUniformLocation(ourShader.ID, "mix_tex"), mix_tex1);
 
 		// draw our first triangle
 		ourShader.use();

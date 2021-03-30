@@ -128,11 +128,11 @@ void SetupApplicationData()
 
 int main()
 {
-	glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+	/*glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
 	glm::mat4 trans = glm::mat4(1.0f);
 	trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
 	vec = trans * vec;
-	std::cout << vec.x << vec.y << vec.z << std::endl;
+	std::cout << vec.x << vec.y << vec.z << std::endl;*/
 
 
 	// glfw: initialize and configure
@@ -172,6 +172,13 @@ int main()
 	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
 	// or set it via the texture class
 	ourShader.setInt("texture2", 1);
+
+	glm::mat4 trans = glm::mat4(1.0f);
+	trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+	trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+
+	unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
 	
 	// render loop

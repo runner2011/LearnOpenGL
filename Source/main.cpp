@@ -22,6 +22,9 @@ unsigned int texture1, texture2;
 
 float mix_tex1 = 0.8f;
 
+int windowWidth = 800;
+int windowHeight = 600;
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -120,13 +123,6 @@ void SetupApplicationData()
 
 int main()
 {
-	/*glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-	glm::mat4 trans = glm::mat4(1.0f);
-	trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
-	vec = trans * vec;
-	std::cout << vec.x << vec.y << vec.z << std::endl;*/
-
-
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -137,7 +133,7 @@ int main()
 #endif
 
 	// glfw window creation
-	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "LearnOpenGL", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -165,10 +161,19 @@ int main()
 	ourShader.setInt("texture1", 0);
 	ourShader.setInt("texture2", 1);
 
-	glm::mat4 trans = glm::mat4(1.0f);
-	//trans = glm::translate(trans, glm::vec3(0.0f, 0.f, 3.f));
-	trans = glm::rotate(trans, glm::radians(-60.f), glm::vec3(0.0f, 1.0f, 0.0f));
+	//model
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::rotate(model, glm::radians(60.f), glm::vec3(0.0f, 1.0f, 0.0f));
+	//view
+	glm::mat4 view = glm::mat4(1.0f);
+	view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
+	//projection
+	glm::mat4 projection;
+	projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight, 0.1f, 100.f);
 
+	ourShader.setMatrix4("model", glm::value_ptr(model));
+	ourShader.setMatrix4("view", glm::value_ptr(view));
+	ourShader.setMatrix4("projection", glm::value_ptr(projection));
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -188,11 +193,6 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
-
-		
-		
-		unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
 		// draw our first triangle
 		ourShader.use();

@@ -22,8 +22,8 @@ unsigned int texture1, texture2;
 
 float mix_tex1 = 0.8f;
 
-int windowWidth = 800;
-int windowHeight = 600;
+int windowWidth = 1100;
+int windowHeight = 880;
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -173,6 +173,10 @@ int main()
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
+	// configure global OpenGL state
+	// -------------------------------------------------------------------------
+	glEnable(GL_DEPTH_TEST);
+	// END configure global OpenGL state
 
 	Shader ourShader("../Source/VertexShaderFile.vs", "../Source/FragmentShaderFile.fs");
 	SetupApplicationData();
@@ -185,19 +189,7 @@ int main()
 	ourShader.setInt("texture1", 0);
 	ourShader.setInt("texture2", 1);
 
-	//model
-	glm::mat4 model = glm::mat4(1.0f);
-	//model = glm::rotate(model, glm::radians(60.f), glm::vec3(0.0f, 1.0f, 0.0f));
-	//view
-	glm::mat4 view = glm::mat4(1.0f);
-	view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
-	//projection
-	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight, 0.1f, 100.f);
-
-	ourShader.setMatrix4("model", glm::value_ptr(model));
-	ourShader.setMatrix4("view", glm::value_ptr(view));
-	ourShader.setMatrix4("projection", glm::value_ptr(projection));
+	
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -207,10 +199,24 @@ int main()
 
 		// rendering commands here
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// bind texture
 		//glBindTexture(GL_TEXTURE_2D, texture);
+
+		//model
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+		//view
+		glm::mat4 view = glm::mat4(1.0f);
+		view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
+		//projection
+		glm::mat4 projection;
+		projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight, 0.1f, 100.f);
+
+		ourShader.setMatrix4("model", glm::value_ptr(model));
+		ourShader.setMatrix4("view", glm::value_ptr(view));
+		ourShader.setMatrix4("projection", glm::value_ptr(projection));
 
 		// bind textures on corresponding texture units
 		glActiveTexture(GL_TEXTURE0);

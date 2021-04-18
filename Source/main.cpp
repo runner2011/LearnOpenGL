@@ -212,7 +212,7 @@ int main()
 	view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
 	//projection
 	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight, 0.1f, 100.f);
+	projection = glm::perspective(glm::radians(20.f), (float)windowWidth / windowHeight /*1.f*/, 0.1f, 100.f);
 
 	ourShader.setMatrix4("view", glm::value_ptr(view));
 	ourShader.setMatrix4("projection", glm::value_ptr(projection));

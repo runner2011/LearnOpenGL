@@ -206,13 +206,13 @@ int main()
 
 	//model
 	glm::mat4 model = glm::mat4(1.0f);
-
+	//model = glm::rotate(model, glm::radians((float)glfwGetTime()), glm::vec3(0, 1, 0));
 	//view
 	glm::mat4 view = glm::mat4(1.0f);
-	view = glm::translate(view, glm::vec3(0.f, -5.f, -5.f));
+	view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
 	//projection
 	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight /*1.f*/, 0.1f, 100.f);
+	projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight, 0.1f, 100.f);
 
 	ourShader.setMatrix4("view", glm::value_ptr(view));
 	ourShader.setMatrix4("projection", glm::value_ptr(projection));
@@ -237,7 +237,10 @@ int main()
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
 			float angle = 20.0f * i;
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			if (i / 3  == 0)
+				model = glm::rotate(model, glm::radians((float)glfwGetTime() * 25), glm::vec3(1.0f, 0.3f, 0.5f));
+			else
+				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 			ourShader.setMatrix4("model", glm::value_ptr(model));
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);

@@ -22,8 +22,21 @@ unsigned int texture1, texture2;
 
 float mix_tex1 = 0.8f;
 
-int windowWidth = 1100;
-int windowHeight = 880;
+int windowWidth = 800;
+int windowHeight = 600;
+
+glm::vec3 cubePositions[] = {
+	glm::vec3(0.0f,  0.0f,  0.0f),
+	glm::vec3(2.0f,  5.0f, -15.0f),
+	glm::vec3(-1.5f, -2.2f, -2.5f),
+	glm::vec3(-3.8f, -2.0f, -12.3f),
+	glm::vec3(2.4f, -0.4f, -3.5f),
+	glm::vec3(-1.7f,  3.0f, -7.5f),
+	glm::vec3(1.3f, -2.0f, -2.5f),
+	glm::vec3(1.5f,  2.0f, -2.5f),
+	glm::vec3(1.5f,  0.2f, -1.5f),
+	glm::vec3(-1.3f,  1.0f, -1.5f)
+};
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -117,6 +130,8 @@ void SetupApplicationData()
 	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
+	
+
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
@@ -189,7 +204,18 @@ int main()
 	ourShader.setInt("texture1", 0);
 	ourShader.setInt("texture2", 1);
 
-	
+	//model
+	glm::mat4 model = glm::mat4(1.0f);
+
+	//view
+	glm::mat4 view = glm::mat4(1.0f);
+	view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
+	//projection
+	glm::mat4 projection;
+	projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight, 0.1f, 100.f);
+
+	ourShader.setMatrix4("view", glm::value_ptr(view));
+	ourShader.setMatrix4("projection", glm::value_ptr(projection));
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -204,19 +230,18 @@ int main()
 		// bind texture
 		//glBindTexture(GL_TEXTURE_2D, texture);
 
-		//model
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-		//view
-		glm::mat4 view = glm::mat4(1.0f);
-		view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
-		//projection
-		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight, 0.1f, 100.f);
+		
 
-		ourShader.setMatrix4("model", glm::value_ptr(model));
-		ourShader.setMatrix4("view", glm::value_ptr(view));
-		ourShader.setMatrix4("projection", glm::value_ptr(projection));
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			ourShader.setMatrix4("model", glm::value_ptr(model));
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		// bind textures on corresponding texture units
 		glActiveTexture(GL_TEXTURE0);

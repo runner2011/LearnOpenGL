@@ -67,10 +67,6 @@ void SetupTexture(const char* path, unsigned int& referenceID, GLint internalFor
 
 void SetupApplicationData()
 {
-	SetupTexture("../Res/container.jpg", texture1, GL_RGB, GL_RGB);
-	SetupTexture("../Res/awesomeface.png", texture2, GL_RGBA, GL_RGBA);
-	
-
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
 	float vertices[] = {
@@ -185,11 +181,20 @@ int main()
 	// -------------------------------------------------------------------------------------------
 	ourShader.use(); // don't forget to activate/use the shader before setting uniforms!
 	
-	// set build-in texture sampler, top to 16 pics
-	ourShader.setInt("texture1", 0);
-	ourShader.setInt("texture2", 1);
 
-	
+	//model
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::rotate(model, glm::radians(60.f), glm::vec3(0.5f, 1.0f, 0.0f));
+	//view
+	glm::mat4 view = glm::mat4(1.0f);
+	view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
+	//projection
+	glm::mat4 projection;
+	projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight, 0.1f, 100.f);
+
+	ourShader.setMatrix4("model", glm::value_ptr(model));
+	ourShader.setMatrix4("view", glm::value_ptr(view));
+	ourShader.setMatrix4("projection", glm::value_ptr(projection));
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -203,20 +208,6 @@ int main()
 
 		// bind texture
 		//glBindTexture(GL_TEXTURE_2D, texture);
-
-		//model
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-		//view
-		glm::mat4 view = glm::mat4(1.0f);
-		view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
-		//projection
-		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight, 0.1f, 100.f);
-
-		ourShader.setMatrix4("model", glm::value_ptr(model));
-		ourShader.setMatrix4("view", glm::value_ptr(view));
-		ourShader.setMatrix4("projection", glm::value_ptr(projection));
 
 		// bind textures on corresponding texture units
 		glActiveTexture(GL_TEXTURE0);

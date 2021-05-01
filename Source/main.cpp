@@ -174,13 +174,14 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 	// END configure global OpenGL state
 
-	Shader ourShader("../Source/VertexShaderFile.vs", "../Source/FragmentShaderFile.fs");
+	Shader objectShader("../Source/VertexShaderFile.vs", "../Source/Colors.fs");
+	Shader lightShader("../Source/VertexShaderFile.vs", "../Source/LightCube.fs");
 	SetupApplicationData();
 
 	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
 	// -------------------------------------------------------------------------------------------
-	ourShader.use(); // don't forget to activate/use the shader before setting uniforms!
-	
+	objectShader.use(); // don't forget to activate/use the shader before setting uniforms!
+	//lightShader.use();
 
 	//model
 	glm::mat4 model = glm::mat4(1.0f);
@@ -192,9 +193,12 @@ int main()
 	glm::mat4 projection;
 	projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight, 0.1f, 100.f);
 
-	ourShader.setMatrix4("model", glm::value_ptr(model));
-	ourShader.setMatrix4("view", glm::value_ptr(view));
-	ourShader.setMatrix4("projection", glm::value_ptr(projection));
+	objectShader.setMatrix4("model", glm::value_ptr(model));
+	objectShader.setMatrix4("view", glm::value_ptr(view));
+	objectShader.setMatrix4("projection", glm::value_ptr(projection));
+
+	objectShader.setFloat3("objectColor", 1.f, 0.5f, 0.31f);
+	objectShader.setFloat3("lightColor", 1.f, 1.f, 1.f);
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -216,10 +220,12 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
 		// draw our first triangle
-		ourShader.use();
-
 		glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		lightShader.use();
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);

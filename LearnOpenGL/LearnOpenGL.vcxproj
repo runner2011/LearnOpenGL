@@ -23,7 +23,8 @@
     <ClCompile Include="..\Source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Source\FragmentShaderFile.fs" />
+    <None Include="..\Source\Colors.fs" />
+    <None Include="..\Source\LightCube.fs" />
     <None Include="..\Source\VertexShaderFile.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

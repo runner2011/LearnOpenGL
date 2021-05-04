@@ -16,7 +16,7 @@
 // link shaders
 unsigned int shaderProgram;
 
-unsigned int VBO, VAO, EBO;
+unsigned int VBO, VAO, EBO, VAO1;
 
 unsigned int texture1, texture2;
 
@@ -117,6 +117,9 @@ void SetupApplicationData()
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
 	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+	/***
+	 *** Any subsequent VBO, EBO, calls will be stored inside the VAO currently bound .
+	 ***/
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -128,6 +131,16 @@ void SetupApplicationData()
 	// texture coords
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3* sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	// The second VAO is for next chapter. Right we could no need this.
+	glGenVertexArrays(1, &VAO1);
+	glBindVertexArray(VAO1);
+
+	// we only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need (it's already bound, but we do it again for educational purposes)
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
 
 	//wireframe mode
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -180,25 +193,7 @@ int main()
 
 	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
 	// -------------------------------------------------------------------------------------------
-	objectShader.use(); // don't forget to activate/use the shader before setting uniforms!
-	//lightShader.use();
-
-	//model
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::rotate(model, glm::radians(60.f), glm::vec3(0.5f, 1.0f, 0.0f));
-	//view
-	glm::mat4 view = glm::mat4(1.0f);
-	view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
-	//projection
-	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight, 0.1f, 100.f);
-
-	objectShader.setMatrix4("model", glm::value_ptr(model));
-	objectShader.setMatrix4("view", glm::value_ptr(view));
-	objectShader.setMatrix4("projection", glm::value_ptr(projection));
-
-	objectShader.setFloat3("objectColor", 1.f, 0.5f, 0.31f);
-	objectShader.setFloat3("lightColor", 1.f, 1.f, 1.f);
+	
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -207,7 +202,7 @@ int main()
 		processInput(window);
 
 		// rendering commands here
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.f, 0.f, 0.f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// bind texture
@@ -219,11 +214,47 @@ int main()
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
+		objectShader.use(); // don't forget to activate/use the shader before setting uniforms!
+		//lightShader.use();
+		
+		//model
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, glm::radians(60.f), glm::vec3(0.5f, 1.0f, 0.0f));
+		//view
+		glm::mat4 view = glm::mat4(1.0f);
+		view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
+		//projection
+		glm::mat4 projection;
+		projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight, 0.1f, 100.f);
+
+		objectShader.setMatrix4("model", glm::value_ptr(model));
+		objectShader.setMatrix4("view", glm::value_ptr(view));
+		objectShader.setMatrix4("projection", glm::value_ptr(projection));
+
+		objectShader.setFloat3("objectColor", 1.f, 0.5f, 0.31f);
+		objectShader.setFloat3("lightColor", 1.f, 1.f, 1.f);
+
 		// draw our first triangle
 		glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		lightShader.use();
+		//glBindVertexArray(VAO1);
+
+		//model
+		model = glm::mat4(1.0f);
+		model = glm::rotate(model, glm::radians(60.f), glm::vec3(0.5f, 1.0f, 0.0f));
+		//view
+		view = glm::mat4(1.0f);
+		view = glm::translate(view, glm::vec3(-1.f, 1.f, -6.f));
+		//projection
+		projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight, 0.1f, 100.f);
+
+		lightShader.setMatrix4("model", glm::value_ptr(model));
+		lightShader.setMatrix4("view", glm::value_ptr(view));
+		lightShader.setMatrix4("projection", glm::value_ptr(projection));
+
+		
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 

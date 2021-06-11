@@ -23,10 +23,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Source\FragmentShaderFile.fs">
+    <None Include="..\Source\Colors.fs">
       <Filter>Source Files</Filter>
     </None>
     <None Include="..\Source\VertexShaderFile.vs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\Source\LightCube.fs">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

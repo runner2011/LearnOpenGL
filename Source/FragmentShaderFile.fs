@@ -6,5 +6,7 @@ in vec3 Pos;
 
 void main()
 {
-    FragColor =  vec4(Pos, 1.0f);
+    // Here, ourColor maybe have more than ** 50000 ** colors!! This is the MAGIC position. Because fragments are much more than vertex. The vertexes' 
+    // output value will be interpolated by fragments. For example, there's three ourColor value, fragment interpolate ourColor by distance to the three vertex positions.
+    FragColor =  vec4(ourColor, 1.0f);
 }

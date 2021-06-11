@@ -8,6 +8,7 @@ out vec3 Pos;
 void main()
 {
     gl_Position = vec4(aPos, 1.0);
+    // Here, the vertex shader only out put three ourColor value to fragment Shader(because there's only three vertex)
     ourColor = aColor;
     Pos = aPos;
 }

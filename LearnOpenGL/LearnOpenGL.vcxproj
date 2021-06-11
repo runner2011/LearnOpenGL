@@ -23,9 +23,10 @@
     <ClCompile Include="..\Source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Source\Colors.fs" />
-    <None Include="..\Source\LightCube.fs" />
-    <None Include="..\Source\VertexShaderFile.vs" />
+    <None Include="..\Source\light.fs" />
+    <None Include="..\Source\light.vs" />
+    <None Include="..\Source\lighting.fs" />
+    <None Include="..\Source\lighting.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

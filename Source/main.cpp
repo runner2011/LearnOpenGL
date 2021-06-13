@@ -31,7 +31,7 @@ int windowWidth = 1100;
 int windowHeight = 880;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
 float lastX = windowWidth / 2.0f;
 float lastY = windowHeight / 2.0f;
 bool firstMouse = true;
@@ -255,8 +255,7 @@ int main()
 	SetupApplicationData();
 
 	// light position
-	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-	//glm::vec3 lightPos(-1.f, 1.0f, -6.f);
+	glm::vec3 lightPos(-1.2f, 2.5f, -6.0f);
 	
 
 	// render loop
@@ -288,7 +287,7 @@ int main()
 		
 		//model
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, glm::radians(60.f), glm::vec3(0.5f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(30.f), glm::vec3(0.0f, 1.0f, 0.0f));
 		//view
 		glm::mat4 view = camera.GetViewMatrix();
 		//view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
@@ -307,6 +306,7 @@ int main()
 		lightingShader.setFloat3("objectColor", 1.f, 0.5f, 0.31f);
 		lightingShader.setFloat3("lightColor", lightR, lightG, lightB);
 		lightingShader.setVec3("lightPos", lightPos);
+		lightingShader.setVec3("viewPos", camera.Position);
 
 		/// DRAW
 		glBindVertexArray(lightingVAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
@@ -317,13 +317,8 @@ int main()
 		
 		//model
 		model = glm::mat4(1.0f);
-		model = glm::rotate(model, glm::radians(60.f), glm::vec3(0.5f, 1.0f, 0.0f));
+		//model = glm::rotate(model, glm::radians(60.f), glm::vec3(0.5f, 1.0f, 0.0f));
 		model = glm::translate(model, lightPos);
-		
-		//view
-		// TODO DELETE
-		//view = camera.GetViewMatrix();
-		//view = glm::translate(view, lightPos);
 
 		lightShader.setMatrix4("model", glm::value_ptr(model));
 		lightShader.setMatrix4("view", glm::value_ptr(view));

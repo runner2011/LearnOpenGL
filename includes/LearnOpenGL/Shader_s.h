@@ -7,6 +7,11 @@
 #include <fstream>
 #include <iostream>
 
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 using namespace std;
 
 class Shader
@@ -76,6 +81,16 @@ public:
 	void setFloat3(const string& name, float v1, float v2, float v3) const
 	{
 		glUniform3f(glGetUniformLocation(ID, name.c_str()), v1, v2, v3);
+	}
+
+	void setVec3(const std::string& name, const glm::vec3& value) const
+	{
+		glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
+	}
+	
+	void setMatrix4(const string& name, const GLfloat* value)
+	{
+		glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, value);
 	}
 
 private:

@@ -155,8 +155,14 @@ void SetupApplicationData()
 }
 
 
-int main()
+int main(int argc, char** argv)
 {
+	const char* _shaderpath = "../Source";
+	if (argc > 1 && argv[1] != "")
+	{
+		_shaderpath = argv[1];
+	}
+
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -188,8 +194,9 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 	// END configure global OpenGL state
 
-	Shader lightingShader("../Source/lighting.vs", "../Source/lighting.fs");
-	Shader lightShader("../Source/light.vs", "../Source/light.fs");
+	std::string shaderPathStr = _shaderpath;
+	Shader lightingShader((shaderPathStr+ std::string("/lighting.vs")).c_str(), (shaderPathStr + std::string("/lighting.fs")).c_str());
+	Shader lightShader((shaderPathStr + std::string("/light.vs")).c_str(), (shaderPathStr + std::string("/light.fs")).c_str());
 	SetupApplicationData();
 
 	// light position

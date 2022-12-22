@@ -173,13 +173,17 @@ int main()
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
+
+	// tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
+	stbi_set_flip_vertically_on_load(true);
+
 	// configure global OpenGL state
 	// -------------------------------------------------------------------------
 	glEnable(GL_DEPTH_TEST);
 	// END configure global OpenGL state
 
 	Shader lightingShader("../Source/lighting.vs", "../Source/lighting.fs");
-	Shader lightShader("../Source/light.vs", "../Source/light.fs");
+	//Shader lightShader("../Source/light.vs", "../Source/light.fs");
 	Model model1 = SetupApplicationData();
 
 	// light position
@@ -228,14 +232,14 @@ int main()
 		lightingShader.setMatrix4("view", glm::value_ptr(view));
 		lightingShader.setMatrix4("projection", glm::value_ptr(projection));
 
-		float lightR = 1.f;
+		/*float lightR = 1.f;
 		float lightG = 1.f;
 		float lightB = 1.f;
 
 		lightingShader.setFloat3("objectColor", 1.f, 1.f, 1.f);
 		lightingShader.setFloat3("lightColor", lightR, lightG, lightB);
 		lightingShader.setVec3("lightPos", lightPos);
-		lightingShader.setVec3("viewPos", camera.Position);
+		lightingShader.setVec3("viewPos", camera.Position);*/
 
 		model1.Draw(lightingShader);
 

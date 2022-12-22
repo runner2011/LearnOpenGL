@@ -25,8 +25,8 @@ unsigned int shaderProgram;
 
 float mix_tex1 = 0.8f;
 
-int windowWidth = 1600;
-int windowHeight = 1200;
+int windowWidth = 2160;
+int windowHeight = 1380;
 
 // camera
 Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
@@ -232,14 +232,14 @@ int main()
 		lightingShader.setMatrix4("view", glm::value_ptr(view));
 		lightingShader.setMatrix4("projection", glm::value_ptr(projection));
 
-		/*float lightR = 1.f;
+		float lightR = 1.f;
 		float lightG = 1.f;
 		float lightB = 1.f;
 
 		lightingShader.setFloat3("objectColor", 1.f, 1.f, 1.f);
 		lightingShader.setFloat3("lightColor", lightR, lightG, lightB);
 		lightingShader.setVec3("lightPos", lightPos);
-		lightingShader.setVec3("viewPos", camera.Position);*/
+		lightingShader.setVec3("viewPos", camera.Position);
 
 		model1.Draw(lightingShader);
 

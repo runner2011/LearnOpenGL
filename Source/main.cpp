@@ -13,6 +13,7 @@
 
 
 
+
 // link shaders
 unsigned int shaderProgram;
 
@@ -157,6 +158,8 @@ void SetupApplicationData()
 
 int main(int argc, char** argv)
 {
+	long fpscount = 0;
+	double lastFrameTime = 0;
 	const char* _shaderpath = "../Source";
 	if (argc > 1 && argv[1] != "")
 	{
@@ -207,6 +210,17 @@ int main(int argc, char** argv)
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
+		double time = glfwGetTime();
+		double duration = time - lastFrameTime;
+		double fps = 1 / duration;
+		lastFrameTime = time;
+
+		char title[256];
+		sprintf_s(title, "FPS: %.2f", fps);
+		glfwSetWindowTitle(window, title);
+
+		
+
 		//input
 		processInput(window);
 
@@ -277,6 +291,7 @@ int main(int argc, char** argv)
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
 	}
 
 	glfwTerminate();

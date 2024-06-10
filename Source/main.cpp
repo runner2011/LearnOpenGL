@@ -123,7 +123,7 @@ Model SetupApplicationData()
 {
 	// load models
 	// -----------
-	Model model1("../Res/backpack/backpack.obj");
+	Model model1("../Res/MyGrass/MyGrass.obj");
 	return model1;
 
 
@@ -174,8 +174,8 @@ int main()
 		return -1;
 	}
 
-	// tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
-	stbi_set_flip_vertically_on_load(true);
+	// #Runner2011 #fix tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
+	//stbi_set_flip_vertically_on_load(true);
 
 	// configure global OpenGL state
 	// -------------------------------------------------------------------------

@@ -139,8 +139,16 @@ Model SetupApplicationData()
 }
 
 
-int main()
+int main(int argc, char** argv)
 {
+	long fpscount = 0;
+	double lastFrameTime = 0;
+	const char* _shaderpath = "../Source";
+	if (argc > 1 && argv[1] != "")
+	{
+		_shaderpath = argv[1];
+	}
+	
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -182,8 +190,9 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 	// END configure global OpenGL state
 
-	Shader lightingShader("../Source/lighting.vs", "../Source/lighting.fs");
-	//Shader lightShader("../Source/light.vs", "../Source/light.fs");
+	std::string shaderPathStr = _shaderpath;
+	Shader lightingShader((shaderPathStr+ std::string("/lighting.vs")).c_str(), (shaderPathStr + std::string("/lighting.fs")).c_str());
+	//Shader lightShader((shaderPathStr + std::string("/light.vs")).c_str(), (shaderPathStr + std::string("/light.fs")).c_str());
 	Model model1 = SetupApplicationData();
 
 	// light position
@@ -194,11 +203,14 @@ int main()
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
-		// per-frame time logic
-		// --------------------
-		float currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		double time = glfwGetTime();
+		double duration = time - lastFrameTime;
+		double fps = 1 / duration;
+		lastFrameTime = time;
+
+		char title[256];
+		sprintf_s(title, "FPS: %.2f", fps);
+		glfwSetWindowTitle(window, title);
 
 		//input
 		processInput(window);

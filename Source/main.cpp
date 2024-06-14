@@ -5,26 +5,38 @@
 #include <iostream>
 #include <fstream>
 #include <LearnOpenGL/Shader_s.h>
-#include <LearnOpenGL/stb_image.h>
+#include <LearnOpenGL/Model.h>
+#include <LearnOpenGL/camera.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void processInput(GLFWwindow* window);
 
 
 // link shaders
 unsigned int shaderProgram;
 
-unsigned int lightingVBO, lightingVAO, lightVAO;
 
-unsigned int texture1, texture2;
 
 float mix_tex1 = 0.8f;
 
-int windowWidth = 1100;
-int windowHeight = 880;
+int windowWidth = 2160;
+int windowHeight = 1380;
+
+// camera
+Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
+float lastX = windowWidth / 2.0f;
+float lastY = windowHeight / 2.0f;
+bool firstMouse = true;
+
+// timing
+float deltaTime = 0.0f;	// time between current frame and last frame
+float lastFrame = 0.0f;
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -38,7 +50,48 @@ void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+
+	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.ProcessKeyboard(FORWARD, deltaTime);
+	if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
+	if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.ProcessKeyboard(LEFT, deltaTime);
+	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.ProcessKeyboard(RIGHT, deltaTime);
+	if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		camera.ProcessKeyboard(UP, deltaTime);
+	if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+		camera.ProcessKeyboard(DOWN, deltaTime);
 }
+
+// glfw: whenever the mouse moves, this callback is called
+// -------------------------------------------------------
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	if(firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+	lastX = xpos;
+	lastY = ypos;
+
+	camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	camera.ProcessMouseScroll(yoffset);
+}
+
 
 void SetupTexture(const char* path, unsigned int& referenceID, GLint internalFormat, GLenum format)
 {
@@ -66,83 +119,13 @@ void SetupTexture(const char* path, unsigned int& referenceID, GLint internalFor
 	stbi_image_free(data);
 }
 
-void SetupApplicationData()
+Model SetupApplicationData()
 {
-	// set up vertex data (and buffer(s)) and configure vertex attributes
-	// ------------------------------------------------------------------
-	float vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	// load models
+	// -----------
+	Model model1("../Res/MyGrass/MyGrass.obj");
+	return model1;
 
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-    };
-
-	glGenVertexArrays(1, &lightingVAO);
-	glGenBuffers(1, &lightingVBO);
-
-	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-	/***
-	 *** Any subsequent VBO, EBO, calls will be stored inside the VAO currently bound .
-	 ***/
-	glBindVertexArray(lightingVAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, lightingVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// position
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	// normal
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	// The second VAO is for next chapter. Right we could no need this.
-	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO);
-
-	// we only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need (it's already bound, but we do it again for educational purposes)
-	glBindBuffer(GL_ARRAY_BUFFER, lightingVBO);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
 
 	//wireframe mode
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -165,7 +148,7 @@ int main(int argc, char** argv)
 	{
 		_shaderpath = argv[1];
 	}
-
+	
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -183,8 +166,14 @@ int main(int argc, char** argv)
 		glfwTerminate();
 		return -1;
 	}
+
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+
+	// tell GLFW to capture our mouse
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// glad: load all OpenGL function pointers
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -192,6 +181,10 @@ int main(int argc, char** argv)
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
+
+	// #Runner2011 #fix tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
+	//stbi_set_flip_vertically_on_load(true);
+
 	// configure global OpenGL state
 	// -------------------------------------------------------------------------
 	glEnable(GL_DEPTH_TEST);
@@ -199,12 +192,12 @@ int main(int argc, char** argv)
 
 	std::string shaderPathStr = _shaderpath;
 	Shader lightingShader((shaderPathStr+ std::string("/lighting.vs")).c_str(), (shaderPathStr + std::string("/lighting.fs")).c_str());
-	Shader lightShader((shaderPathStr + std::string("/light.vs")).c_str(), (shaderPathStr + std::string("/light.fs")).c_str());
-	SetupApplicationData();
+	//Shader lightShader((shaderPathStr + std::string("/light.vs")).c_str(), (shaderPathStr + std::string("/light.fs")).c_str());
+	Model model1 = SetupApplicationData();
 
 	// light position
-	//glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-	glm::vec3 lightPos(-1.f, 1.0f, -6.f);
+	float a = 100;
+	glm::vec3 lightPos(-1.2f* a, 2.5f* a, 0/*-6.0f*a*/);
 	
 
 	// render loop
@@ -218,8 +211,6 @@ int main(int argc, char** argv)
 		char title[256];
 		sprintf_s(title, "FPS: %.2f", fps);
 		glfwSetWindowTitle(window, title);
-
-		
 
 		//input
 		processInput(window);
@@ -241,13 +232,13 @@ int main(int argc, char** argv)
 		
 		//model
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, glm::radians(60.f), glm::vec3(0.5f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(0.f), glm::vec3(0.0f, 1.0f, 0.0f));
 		//view
-		glm::mat4 view = glm::mat4(1.0f);
-		view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
+		glm::mat4 view = camera.GetViewMatrix();
+		//view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
 		//projection
 		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(45.f), (float)windowWidth / windowHeight, 0.1f, 100.f);
+		projection = glm::perspective(glm::radians(camera.Zoom), (float)windowWidth / windowHeight, 0.1f, 100.f);
 
 		lightingShader.setMatrix4("model", glm::value_ptr(model));
 		lightingShader.setMatrix4("view", glm::value_ptr(view));
@@ -257,41 +248,17 @@ int main(int argc, char** argv)
 		float lightG = 1.f;
 		float lightB = 1.f;
 
-		lightingShader.setFloat3("objectColor", 1.f, 0.5f, 0.31f);
+		lightingShader.setFloat3("objectColor", 1.f, 1.f, 1.f);
 		lightingShader.setFloat3("lightColor", lightR, lightG, lightB);
 		lightingShader.setVec3("lightPos", lightPos);
+		lightingShader.setVec3("viewPos", camera.Position);
 
-		// draw our first triangle
-		glBindVertexArray(lightingVAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
-		lightShader.use();
-		
-		//model
-		model = glm::mat4(1.0f);
-		model = glm::rotate(model, glm::radians(60.f), glm::vec3(0.5f, 1.0f, 0.0f));
-		//model = glm::translate(model, lightPos);
-		
-		//view
-		// TODO DELETE
-		view = glm::mat4(1.0f);
-		view = glm::translate(view, lightPos);
-
-		lightShader.setMatrix4("model", glm::value_ptr(model));
-		lightShader.setMatrix4("view", glm::value_ptr(view));
-		lightShader.setMatrix4("projection", glm::value_ptr(projection));
-
-		lightShader.setFloat3("lightColor", lightR, lightG, lightB);
-
-		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		model1.Draw(lightingShader);
 
 
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
 	}
 
 	glfwTerminate();

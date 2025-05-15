@@ -35,8 +35,7 @@ float lastY = windowHeight / 2.0f;
 bool firstMouse = true;
 
 // timing
-float deltaTime = 0.0f;	// time between current frame and last frame
-float lastFrame = 0.0f;
+double deltaTime = 0.0f;	// time between current frame and last frame
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -203,10 +202,10 @@ int main(int argc, char** argv)
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
-		double time = glfwGetTime();
-		double duration = time - lastFrameTime;
-		double fps = 1 / duration;
-		lastFrameTime = time;
+		double currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrameTime;
+		double fps = 1 / deltaTime;
+		lastFrameTime = currentFrame;
 
 		char title[256];
 		sprintf_s(title, "FPS: %.2f", fps);

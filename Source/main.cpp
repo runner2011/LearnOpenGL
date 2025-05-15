@@ -122,7 +122,9 @@ Model SetupApplicationData()
 {
 	// load models
 	// -----------
-	Model model1("../Res/MyGrass/MyGrass.obj");
+	//Model model1("../Res/backpack/backpack.obj");
+	//Model model1("../Res/MyGrass/MyGrass.obj");
+	Model model1("../Res/planet/planet.obj");
 	return model1;
 
 
@@ -237,7 +239,7 @@ int main(int argc, char** argv)
 		//view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
 		//projection
 		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(camera.Zoom), (float)windowWidth / windowHeight, 0.1f, 100.f);
+		projection = glm::perspective(glm::radians(camera.Zoom), (float)windowWidth / windowHeight, 0.1f, 1000000.f);
 
 		lightingShader.setMatrix4("model", glm::value_ptr(model));
 		lightingShader.setMatrix4("view", glm::value_ptr(view));

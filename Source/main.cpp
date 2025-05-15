@@ -29,7 +29,7 @@ int windowWidth = 2160;
 int windowHeight = 1380;
 
 // camera
-Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 1.0f, 30.0f));
 float lastX = windowWidth / 2.0f;
 float lastY = windowHeight / 2.0f;
 bool firstMouse = true;
@@ -118,14 +118,39 @@ void SetupTexture(const char* path, unsigned int& referenceID, GLint internalFor
 	stbi_image_free(data);
 }
 
-Model SetupApplicationData()
+void SetupShader(Shader& shader, glm::vec3 ModelOffset, glm::vec3 lightPos)
+{
+	//model
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::rotate(model, glm::radians(0.f), glm::vec3(0.f, 1.f, 0.f));
+	//view
+	glm::mat4 view = camera.GetViewMatrix();
+	view = glm::translate(view, ModelOffset);
+	//projection
+	glm::mat4 projection;
+	projection = glm::perspective(glm::radians(camera.Zoom), (float)windowWidth / windowHeight, 0.1f, 1000000.f);
+
+	shader.setMatrix4("model", glm::value_ptr(model));
+	shader.setMatrix4("view", glm::value_ptr(view));
+	shader.setMatrix4("projection", glm::value_ptr(projection));
+
+	float lightR = 1.f;
+	float lightG = 1.f;
+	float lightB = 1.f;
+
+	shader.setFloat3("objectColor", 1.f, 1.f, 1.f);
+	shader.setFloat3("lightColor", lightR, lightG, lightB);
+	shader.setVec3("lightPos", lightPos);
+	shader.setVec3("viewPos", camera.Position);
+
+}
+
+Model SetupApplicationData(const string& modelPath)
 {
 	// load models
 	// -----------
-	//Model model1("../Res/backpack/backpack.obj");
-	//Model model1("../Res/MyGrass/MyGrass.obj");
-	Model model1("../Res/planet/planet.obj");
-	return model1;
+	Model model(modelPath);
+	return model;
 
 
 	//wireframe mode
@@ -193,9 +218,11 @@ int main(int argc, char** argv)
 
 	std::string shaderPathStr = _shaderpath;
 	Shader lightingShader((shaderPathStr+ std::string("/lighting.vs")).c_str(), (shaderPathStr + std::string("/lighting.fs")).c_str());
-	//Shader lightShader((shaderPathStr + std::string("/light.vs")).c_str(), (shaderPathStr + std::string("/light.fs")).c_str());
-	Model model1 = SetupApplicationData();
+	Shader lightingShader1 = lightingShader;
 
+	Model model1 = SetupApplicationData("../Res/planet/planet.obj");
+	Model model2 = SetupApplicationData("../Res/rock/rock.obj");
+	
 	// light position
 	float a = 100;
 	glm::vec3 lightPos(-1.2f* a, 2.5f* a, 0/*-6.0f*a*/);
@@ -230,31 +257,12 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, texture2);*/
 
 		lightingShader.use(); // don't forget to activate/use the shader before setting uniforms!
-		
-		//model
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, glm::radians(0.f), glm::vec3(0.0f, 1.0f, 0.0f));
-		//view
-		glm::mat4 view = camera.GetViewMatrix();
-		//view = glm::translate(view, glm::vec3(0.f, 0.f, -3.f));
-		//projection
-		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(camera.Zoom), (float)windowWidth / windowHeight, 0.1f, 1000000.f);
-
-		lightingShader.setMatrix4("model", glm::value_ptr(model));
-		lightingShader.setMatrix4("view", glm::value_ptr(view));
-		lightingShader.setMatrix4("projection", glm::value_ptr(projection));
-
-		float lightR = 1.f;
-		float lightG = 1.f;
-		float lightB = 1.f;
-
-		lightingShader.setFloat3("objectColor", 1.f, 1.f, 1.f);
-		lightingShader.setFloat3("lightColor", lightR, lightG, lightB);
-		lightingShader.setVec3("lightPos", lightPos);
-		lightingShader.setVec3("viewPos", camera.Position);
-
+		SetupShader(lightingShader, glm::vec3(0, 0, 0), lightPos);
 		model1.Draw(lightingShader);
+
+		lightingShader1.use();
+		SetupShader(lightingShader1, glm::vec3(0.f, 0.f, -300.f), lightPos);
+		model2.Draw(lightingShader1);
 
 
 		// check and call events and swap the buffers

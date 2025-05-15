@@ -118,14 +118,18 @@ void SetupTexture(const char* path, unsigned int& referenceID, GLint internalFor
 	stbi_image_free(data);
 }
 
-void SetupShader(Shader& shader, glm::vec3 ModelOffset, glm::vec3 lightPos)
+void SetupShader(Shader& shader, glm::vec3 ModelOffset, glm::vec3 lightPos, float RotateAngle = 0.f)
 {
 	//model
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::rotate(model, glm::radians(0.f), glm::vec3(0.f, 1.f, 0.f));
 	//view
 	glm::mat4 view = camera.GetViewMatrix();
+	view = glm::rotate(view, RotateAngle, glm::vec3(0.f, 1.f, 0.f));
 	view = glm::translate(view, ModelOffset);
+	
+	
+	
 	//projection
 	glm::mat4 projection;
 	projection = glm::perspective(glm::radians(camera.Zoom), (float)windowWidth / windowHeight, 0.1f, 1000000.f);
@@ -261,8 +265,11 @@ int main(int argc, char** argv)
 		model1.Draw(lightingShader);
 
 		lightingShader1.use();
-		SetupShader(lightingShader1, glm::vec3(0.f, 0.f, -300.f), lightPos);
-		model2.Draw(lightingShader1);
+		for (int i = 0; i < 2000; i++)
+		{
+			SetupShader(lightingShader1, glm::vec3(0.f, 0.f, -300.f), lightPos, i);
+			model2.Draw(lightingShader1);
+		}
 
 
 		// check and call events and swap the buffers

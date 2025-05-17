@@ -8,7 +8,7 @@
 #include <LearnOpenGL/Model.h>
 #include <LearnOpenGL/camera.h>
 #include <LearnOpenGL/HelperLibrary.h>
-//#include "main.h"
+#include "main.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

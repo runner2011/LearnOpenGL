@@ -7,10 +7,13 @@
 #include <LearnOpenGL/Shader_s.h>
 #include <LearnOpenGL/Model.h>
 #include <LearnOpenGL/camera.h>
+#include <LearnOpenGL/HelperLibrary.h>
+//#include "main.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "main.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -118,17 +121,17 @@ void SetupTexture(const char* path, unsigned int& referenceID, GLint internalFor
 	stbi_image_free(data);
 }
 
-void SetupShader(Shader& shader, glm::vec3 ModelOffset, glm::vec3 lightPos, float RotateAngle = 0.f)
+
+void SetupShader(Shader& shader, glm::vec3 ModelOffset, glm::vec3 lightPos, float RotateAngle = 0.f, glm::vec3 scale = glm::vec3(1.f))
 {
 	//model
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::rotate(model, glm::radians(0.f), glm::vec3(0.f, 1.f, 0.f));
+
 	//view
 	glm::mat4 view = camera.GetViewMatrix();
-	view = glm::rotate(view, RotateAngle, glm::vec3(0.f, 1.f, 0.f));
+	view = glm::rotate(view, AngleToRadians(RotateAngle), glm::vec3(0.f, 1.f, 0.f));
 	view = glm::translate(view, ModelOffset);
-	
-	
+	view = glm::scale(view, scale);
 	
 	//projection
 	glm::mat4 projection;
@@ -149,6 +152,22 @@ void SetupShader(Shader& shader, glm::vec3 ModelOffset, glm::vec3 lightPos, floa
 
 }
 
+void RotateModel(Shader& shader, float angle, glm::vec3 axis)
+{
+	glm::mat4 model;
+	shader.getMatrix4("model", glm::value_ptr(model));
+	model = glm::rotate(model, glm::radians(angle), axis);
+	shader.setMatrix4("model", glm::value_ptr(model));
+}
+
+void TranslateModel(Shader& shader, glm::vec3 offset)
+{
+	glm::mat4 model;
+	shader.getMatrix4("model", glm::value_ptr(model));
+	model = glm::translate(model, offset);
+	shader.setMatrix4("model", glm::value_ptr(model));
+}
+
 Model SetupApplicationData(const string& modelPath)
 {
 	// load models
@@ -167,6 +186,15 @@ Model SetupApplicationData(const string& modelPath)
 	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	//glBindVertexArray(0);
 }
+
+///// Game DATA
+
+std::vector<glm::vec3> asteroidOffsets;
+std::vector<float> asteroidAngles;
+std::vector<float> asteroidSpeeds;
+
+
+//////////////
 
 
 int main(int argc, char** argv)
@@ -223,14 +251,27 @@ int main(int argc, char** argv)
 	std::string shaderPathStr = _shaderpath;
 	Shader lightingShader((shaderPathStr+ std::string("/lighting.vs")).c_str(), (shaderPathStr + std::string("/lighting.fs")).c_str());
 	Shader lightingShader1 = lightingShader;
-
-	Model model1 = SetupApplicationData("../Res/planet/planet.obj");
-	Model model2 = SetupApplicationData("../Res/rock/rock.obj");
 	
 	// light position
 	float a = 100;
 	glm::vec3 lightPos(-1.2f* a, 2.5f* a, 0/*-6.0f*a*/);
-	
+
+	///// Init game data
+	Model planet = SetupApplicationData("../Res/planet/planet.obj");
+	Model asteriod = SetupApplicationData("../Res/rock/rock.obj");
+
+	int asteroidAmount = 200;
+	for (int i = 0; i < asteroidAmount; i++)
+	{
+		glm::vec3 offset = glm::vec3(0.f, 0.f, -300.f + RandomFloat() * 10);
+		float angle = RandomFloat() * 360.f;
+		float speed = RandomFloat(0.8f, 1.1f);
+
+		asteroidOffsets.push_back(offset);
+		asteroidAngles.push_back(angle);
+		asteroidSpeeds.push_back(speed);
+	}
+
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -261,15 +302,20 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, texture2);*/
 
 		lightingShader.use(); // don't forget to activate/use the shader before setting uniforms!
-		SetupShader(lightingShader, glm::vec3(0, 0, 0), lightPos);
-		model1.Draw(lightingShader);
+		SetupShader(lightingShader, glm::vec3(0, 0, 0), lightPos, 0.f, glm::vec3(1.f)*1.f);
+		planet.Draw(lightingShader);
 
 		lightingShader1.use();
-		for (int i = 0; i < 2000; i++)
+
+		// draw the model with rotate
+		for (int i = 0; i < asteroidAmount; i++)
 		{
-			SetupShader(lightingShader1, glm::vec3(0.f, 0.f, -300.f), lightPos, i);
-			model2.Draw(lightingShader1);
+			asteroidAngles[i] = asteroidAngles[i] + deltaTime;
+
+			SetupShader(lightingShader1, asteroidOffsets[i], lightPos, asteroidAngles[i], glm::vec3(1));
+			asteriod.Draw(lightingShader1);
 		}
+
 
 
 		// check and call events and swap the buffers
@@ -282,4 +328,8 @@ int main(int argc, char** argv)
 
 }
 
+void Init(std::string ShaderPath)
+{
+
+}
 

@@ -28,6 +28,9 @@
     <None Include="..\Source\lighting.fs" />
     <None Include="..\Source\lighting.vs" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="main.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

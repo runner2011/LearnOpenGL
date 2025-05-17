@@ -93,6 +93,17 @@ public:
 		glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, value);
 	}
 
+	void getMatrix4(const std::string& name, GLfloat* value) const
+	{
+		int location = glGetUniformLocation(ID, name.c_str());
+		if (location == -1)
+		{
+			std::cerr << "ERROR::SHADER::UNIFORM_NOT_FOUND: " << name << std::endl;
+			return;
+		}
+		glGetUniformfv(ID, location, value);
+	}
+
 private:
 	// utility function for checking shader compilation/linking errors.
 	// ------------------------------------------------------------------------

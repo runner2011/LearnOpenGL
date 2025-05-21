@@ -13,7 +13,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "main.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -189,6 +188,11 @@ Model SetupApplicationData(const string& modelPath)
 
 ///// Game DATA
 
+// planets
+std::vector<glm::vec3> planetsLocations;
+std::vector<glm::vec3> planetsRadiuses;
+
+// asteroids
 std::vector<glm::vec3> asteroidOffsets;
 std::vector<float> asteroidAngles;
 std::vector<float> asteroidSpeeds;
@@ -260,16 +264,37 @@ int main(int argc, char** argv)
 	Model planet = SetupApplicationData("../Res/planet/planet.obj");
 	Model asteriod = SetupApplicationData("../Res/rock/rock.obj");
 
-	int asteroidAmount = 200;
+	int planetAmount = 10;
+	float SpaceScale = 10000.f;
+	float PlanetMinRadius = 0.5f;
+	float PlanetMaxRadius = 20.f;
+	
+	planetsLocations.push_back(glm::vec3(0.f));
+	planetsRadiuses.push_back(glm::vec3(1.f));
+
+	for (int i = 1; i < planetAmount; i++)
+	{
+		glm::vec3 offset = glm::vec3(0.f + RandomFloat(-SpaceScale, SpaceScale), 0.f + RandomFloat(-SpaceScale, SpaceScale),  0.f + RandomFloat(-SpaceScale, SpaceScale));
+		planetsLocations.push_back(offset);
+		float r = RandomFloat(PlanetMinRadius, PlanetMaxRadius);
+		planetsRadiuses.push_back(glm::vec3(1.f, 1.f, 1.f) * r);
+		//printf("planet %d: %f %f %f\n", i, offset.x, offset.y, offset.z);
+		//printf("planetx %d: %f %f %f\n", i, planetsRadiuses[i].x, planetsRadiuses[i].y, planetsRadiuses[i].z);
+	}
+
+
+	int asteroidAmount = 1;
+	float speed = 90.f;
+
 	for (int i = 0; i < asteroidAmount; i++)
 	{
 		glm::vec3 offset = glm::vec3(0.f, 0.f, -300.f + RandomFloat() * 10);
-		float angle = RandomFloat() * 360.f;
-		float speed = RandomFloat(0.8f, 1.1f);
+		float _angle = RandomFloat() * 360.f;
+		float _speed = RandomFloat(0.8f, 1.1f) * speed;
 
 		asteroidOffsets.push_back(offset);
-		asteroidAngles.push_back(angle);
-		asteroidSpeeds.push_back(speed);
+		asteroidAngles.push_back(_angle);
+		asteroidSpeeds.push_back(_speed);
 	}
 
 
@@ -302,15 +327,19 @@ int main(int argc, char** argv)
 		glBindTexture(GL_TEXTURE_2D, texture2);*/
 
 		lightingShader.use(); // don't forget to activate/use the shader before setting uniforms!
-		SetupShader(lightingShader, glm::vec3(0, 0, 0), lightPos, 0.f, glm::vec3(1.f)*1.f);
-		planet.Draw(lightingShader);
+		for (int i = 0; i < planetAmount; i++)
+		{
+			SetupShader(lightingShader, planetsLocations[i], lightPos, 0.f, planetsRadiuses[i] * 1.f);
+			planet.Draw(lightingShader);
+		}
+		
 
 		lightingShader1.use();
 
 		// draw the model with rotate
 		for (int i = 0; i < asteroidAmount; i++)
 		{
-			asteroidAngles[i] = asteroidAngles[i] + deltaTime;
+			asteroidAngles[i] = asteroidAngles[i] + deltaTime * asteroidSpeeds[i];
 
 			SetupShader(lightingShader1, asteroidOffsets[i], lightPos, asteroidAngles[i], glm::vec3(1));
 			asteriod.Draw(lightingShader1);

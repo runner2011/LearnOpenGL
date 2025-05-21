@@ -14,6 +14,6 @@ float RandomFloat(float min = 0.f, float max = 1.f)
 {
 	static std::random_device rd;
 	static std::mt19937 gen(rd());
-	static std::uniform_real_distribution<float> dis(min, max);
+	std::uniform_real_distribution<float> dis(min, max);
 	return dis(gen);
 }

@@ -6,8 +6,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <learnopengl/shader_s.h>
+#include <LearnOpenGL/Shader_s.h>
 
+#include <cstddef>
 #include <string>
 #include <vector>
 using namespace std;

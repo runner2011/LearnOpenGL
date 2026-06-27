@@ -209,7 +209,7 @@ int main(int argc, char** argv)
 		lastFrameTime = time;
 
 		char title[256];
-		sprintf_s(title, "FPS: %.2f", fps);
+		sprintf(title, "FPS: %.2f", fps);
 		glfwSetWindowTitle(window, title);
 
 		//input

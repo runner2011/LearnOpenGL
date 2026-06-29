@@ -10,7 +10,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 add_executable(LearnOpenGL
     Source/glad.c
-    Source/main.cpp
+    Source/skeletal_animation.cpp
 )
 
 target_include_directories(LearnOpenGL PRIVATE

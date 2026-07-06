@@ -32,7 +32,7 @@ int windowWidth = 2160;
 int windowHeight = 1380;
 
 // camera
-Camera camera(glm::vec3(0.0f, 1.0f, 30.0f));
+Camera camera;
 float lastX = windowWidth / 2.0f;
 float lastY = windowHeight / 2.0f;
 bool firstMouse = true;
@@ -231,6 +231,7 @@ int main(int argc, char** argv)
 	}
 
 	glfwMakeContextCurrent(window);
+	glfwSwapInterval(0);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
@@ -284,8 +285,8 @@ int main(int argc, char** argv)
 	}
 
 
-	int asteroidAmount = 1;
-	float speed = 90.f;
+	int asteroidAmount = 1000;
+	float speed = 25.f;
 
 	for (int i = 0; i < asteroidAmount; i++)
 	{
@@ -299,64 +300,66 @@ int main(int argc, char** argv)
 	}
 
 
+	camera = Camera(glm::vec3(120.0f, 300.0f, 510.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.f, -35.f);
+
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
 		double currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrameTime;
-		double fps = 1 / deltaTime;
-		lastFrameTime = currentFrame;
-
-		char title[256];
-		std::snprintf(title, sizeof(title), "FPS: %.2f", fps);
-		glfwSetWindowTitle(window, title);
-
-		//input
-		processInput(window);
-
-		// rendering commands here
-		glClearColor(0.f, 0.f, 0.f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// bind texture
-		//glBindTexture(GL_TEXTURE_2D, texture);
-
-		// bind textures on corresponding texture units
-		/*glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);*/
-
-		lightingShader.use(); // don't forget to activate/use the shader before setting uniforms!
-		for (int i = 0; i < planetAmount; i++)
+		if (currentFrame - lastFrameTime > 0.001f)
 		{
-			SetupShader(lightingShader, planetsLocations[i], lightPos, 0.f, planetsRadiuses[i] * 1.f);
-			planet.Draw(lightingShader);
+			double fps = 1 / deltaTime;
+			lastFrameTime = currentFrame;
+
+			char title[256];
+			std::snprintf(title, sizeof(title), "FPS: %.2f", fps);
+			glfwSetWindowTitle(window, title);
+
+			//input
+			processInput(window);
+
+			// rendering commands here
+			glClearColor(0.f, 0.f, 0.f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			// bind texture
+			//glBindTexture(GL_TEXTURE_2D, texture);
+
+			// bind textures on corresponding texture units
+			/*glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texture1);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, texture2);*/
+
+			lightingShader.use(); // don't forget to activate/use the shader before setting uniforms!
+			for (int i = 0; i < planetAmount; i++)
+			{
+				SetupShader(lightingShader, planetsLocations[i], lightPos, 0.f, planetsRadiuses[i] * 1.f);
+				planet.Draw(lightingShader);
+			}
+			
+
+			lightingShader1.use();
+
+			// draw the model with rotate
+			for (int i = 0; i < asteroidAmount; i++)
+			{
+				asteroidAngles[i] = asteroidAngles[i] + deltaTime * asteroidSpeeds[i];
+
+				SetupShader(lightingShader1, asteroidOffsets[i], lightPos, asteroidAngles[i], glm::vec3(1));
+				asteriod.Draw(lightingShader1);
+			}
+
+
+
+			// check and call events and swap the buffers
+			glfwSwapBuffers(window);
+			glfwPollEvents();
 		}
-		
-
-		lightingShader1.use();
-
-		// draw the model with rotate
-		for (int i = 0; i < asteroidAmount; i++)
-		{
-			asteroidAngles[i] = asteroidAngles[i] + deltaTime * asteroidSpeeds[i];
-
-			SetupShader(lightingShader1, asteroidOffsets[i], lightPos, asteroidAngles[i], glm::vec3(1));
-			asteriod.Draw(lightingShader1);
-		}
-
-
-
-		// check and call events and swap the buffers
-		glfwSwapBuffers(window);
-		glfwPollEvents();
 	}
 
 	glfwTerminate();
 	return 0;
 
 }
-
-void Init(std::string ShaderPath)
-{

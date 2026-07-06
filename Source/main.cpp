@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <LearnOpenGL/Shader_s.h>
@@ -307,7 +308,7 @@ int main(int argc, char** argv)
 		lastFrameTime = currentFrame;
 
 		char title[256];
-		sprintf_s(title, "FPS: %.2f", fps);
+		std::snprintf(title, sizeof(title), "FPS: %.2f", fps);
 		glfwSetWindowTitle(window, title);
 
 		//input
@@ -359,6 +360,3 @@ int main(int argc, char** argv)
 
 void Init(std::string ShaderPath)
 {
-
-}
-

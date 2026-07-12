@@ -284,21 +284,6 @@ int main(int argc, char** argv)
 		//printf("planetx %d: %f %f %f\n", i, planetsRadiuses[i].x, planetsRadiuses[i].y, planetsRadiuses[i].z);
 	}
 
-
-	// int asteroidAmount = 1000;
-	// float speed = 25.f;
-
-	// for (int i = 0; i < asteroidAmount; i++)
-	// {
-	// 	glm::vec3 offset = glm::vec3(0.f, 0.f, -300.f + RandomFloat() * 10);
-	// 	float _angle = RandomFloat() * 360.f;
-	// 	float _speed = RandomFloat(0.8f, 1.1f) * speed;
-
-	// 	asteroidOffsets.push_back(offset);
-	// 	asteroidAngles.push_back(_angle);
-	// 	asteroidSpeeds.push_back(_speed);
-	// }
-
 	/////// instance
 
 	unsigned int amount = 100000;
@@ -404,23 +389,11 @@ int main(int argc, char** argv)
 				SetupShader(lightingShader, planetsLocations[i], lightPos, 0.f, planetsRadiuses[i] * 1.f);
 				planet.Draw(lightingShader);
 			}
-			
-
-			
-
-			// // draw the model with rotate
-			// for (int i = 0; i < asteroidAmount; i++)
-			// {
-			// 	asteroidAngles[i] = asteroidAngles[i] + deltaTime * asteroidSpeeds[i];
-
-			// 	SetupShader(lightingShader1, asteroidOffsets[i], lightPos, asteroidAngles[i], glm::vec3(1));
-			// 	asteriod.Draw(lightingShader1);
-			// }
 
 			// configure transformation matrices
 			
 			lightingShader1.use();
-			SetupShader(lightingShader1, glm::vec3(), glm::vec3(), 0.f, glm::vec3());
+			SetupShader(lightingShader1, glm::vec3(), glm::vec3(), 0.f, glm::vec3(1.f));
 
 			 // draw meteorites
 			lightingShader1.setInt("texture_diffuse1", 0);

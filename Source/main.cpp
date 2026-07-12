@@ -256,7 +256,7 @@ int main(int argc, char** argv)
 
 	std::string shaderPathStr = _shaderpath;
 	Shader lightingShader((shaderPathStr+ std::string("/lighting.vs")).c_str(), (shaderPathStr + std::string("/lighting.fs")).c_str());
-	Shader lightingShader1 = lightingShader;
+	Shader lightingShader1((shaderPathStr+ std::string("/10.3.asteroids.vs")).c_str(), (shaderPathStr + std::string("/10.3.asteroids.fs")).c_str());
 	
 	// light position
 	float a = 100;
@@ -285,21 +285,87 @@ int main(int argc, char** argv)
 	}
 
 
-	int asteroidAmount = 1000;
-	float speed = 25.f;
+	// int asteroidAmount = 1000;
+	// float speed = 25.f;
 
-	for (int i = 0; i < asteroidAmount; i++)
-	{
-		glm::vec3 offset = glm::vec3(0.f, 0.f, -300.f + RandomFloat() * 10);
-		float _angle = RandomFloat() * 360.f;
-		float _speed = RandomFloat(0.8f, 1.1f) * speed;
+	// for (int i = 0; i < asteroidAmount; i++)
+	// {
+	// 	glm::vec3 offset = glm::vec3(0.f, 0.f, -300.f + RandomFloat() * 10);
+	// 	float _angle = RandomFloat() * 360.f;
+	// 	float _speed = RandomFloat(0.8f, 1.1f) * speed;
 
-		asteroidOffsets.push_back(offset);
-		asteroidAngles.push_back(_angle);
-		asteroidSpeeds.push_back(_speed);
-	}
+	// 	asteroidOffsets.push_back(offset);
+	// 	asteroidAngles.push_back(_angle);
+	// 	asteroidSpeeds.push_back(_speed);
+	// }
 
+	/////// instance
 
+	unsigned int amount = 100000;
+    glm::mat4* modelMatrices;
+    modelMatrices = new glm::mat4[amount];
+	srand(static_cast<unsigned int>(glfwGetTime())); // initialize random seed
+    float radius = 150.0;
+    float offset = 25.0f;
+    for (unsigned int i = 0; i < amount; i++)
+    {
+        glm::mat4 model = glm::mat4(1.0f);
+        // 1. translation: displace along circle with 'radius' in range [-offset, offset]
+        float angle = (float)i / (float)amount * 360.0f;
+        float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+        float x = sin(angle) * radius + displacement;
+        displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+        float y = displacement * 0.4f; // keep height of asteroid field smaller compared to width of x and z
+        displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+        float z = cos(angle) * radius + displacement;
+        model = glm::translate(model, glm::vec3(x, y, z));
+
+        // 2. scale: Scale between 0.05 and 0.25f
+        float scale = static_cast<float>((rand() % 20) / 100.0 + 0.05);
+        model = glm::scale(model, glm::vec3(scale));
+
+        // 3. rotation: add random rotation around a (semi)randomly picked rotation axis vector
+        float rotAngle = static_cast<float>((rand() % 360));
+        model = glm::rotate(model, glm::radians(rotAngle), glm::vec3(0.4f, 0.6f, 0.8f));
+
+        // 4. now add to list of matrices
+        modelMatrices[i] = model;
+    }
+
+	// configure instanced array
+    // -------------------------
+    unsigned int buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	// set transformation matrices as an instance vertex attribute (with divisor 1)
+    // note: we're cheating a little by taking the, now publicly declared, VAO of the model's mesh(es) and adding new vertexAttribPointers
+    // normally you'd want to do this in a more organized fashion, but for learning purposes this will do.
+    // -----------------------------------------------------------------------------------------------------------------------------------
+    for (unsigned int i = 0; i < asteriod.meshes.size(); i++)
+    {
+        unsigned int VAO = asteriod.meshes[i].VAO;
+        glBindVertexArray(VAO);
+        // set attribute pointers for matrix (4 times vec4)
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+        glEnableVertexAttribArray(6);
+        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+        glVertexAttribDivisor(3, 1);
+        glVertexAttribDivisor(4, 1);
+        glVertexAttribDivisor(5, 1);
+        glVertexAttribDivisor(6, 1);
+
+        glBindVertexArray(0);
+    }
+	
+	
 	camera = Camera(glm::vec3(120.0f, 300.0f, 510.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.f, -35.f);
 
 	// render loop
@@ -340,15 +406,31 @@ int main(int argc, char** argv)
 			}
 			
 
+			
+
+			// // draw the model with rotate
+			// for (int i = 0; i < asteroidAmount; i++)
+			// {
+			// 	asteroidAngles[i] = asteroidAngles[i] + deltaTime * asteroidSpeeds[i];
+
+			// 	SetupShader(lightingShader1, asteroidOffsets[i], lightPos, asteroidAngles[i], glm::vec3(1));
+			// 	asteriod.Draw(lightingShader1);
+			// }
+
+			// configure transformation matrices
+			
 			lightingShader1.use();
+			SetupShader(lightingShader1, glm::vec3(), glm::vec3(), 0.f, glm::vec3());
 
-			// draw the model with rotate
-			for (int i = 0; i < asteroidAmount; i++)
+			 // draw meteorites
+			lightingShader1.setInt("texture_diffuse1", 0);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, asteriod.textures_loaded[0].id); // note: we also made the textures_loaded vector public (instead of private) from the model class.
+			for (unsigned int i = 0; i < asteriod.meshes.size(); i++)
 			{
-				asteroidAngles[i] = asteroidAngles[i] + deltaTime * asteroidSpeeds[i];
-
-				SetupShader(lightingShader1, asteroidOffsets[i], lightPos, asteroidAngles[i], glm::vec3(1));
-				asteriod.Draw(lightingShader1);
+				glBindVertexArray(asteriod.meshes[i].VAO);
+				glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(asteriod.meshes[i].indices.size()), GL_UNSIGNED_INT, 0, amount);
+				glBindVertexArray(0);
 			}
 
 

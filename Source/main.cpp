@@ -286,7 +286,7 @@ int main(int argc, char** argv)
 
 	/////// instance
 
-	unsigned int amount = 100000;
+	unsigned int amount = 1000;
     glm::mat4* modelMatrices;
     modelMatrices = new glm::mat4[amount];
 	srand(static_cast<unsigned int>(glfwGetTime())); // initialize random seed
@@ -357,18 +357,24 @@ int main(int argc, char** argv)
 	while (!glfwWindowShouldClose(window))
 	{
 		double currentFrame = glfwGetTime();
+		double lastTitleUpdateTime = 0.0;
+
 		deltaTime = currentFrame - lastFrameTime;
-		if (currentFrame - lastFrameTime > 0.001f)
+		if (currentFrame - lastFrameTime > 0.0001f)
 		{
 			double fps = 1 / deltaTime;
 			lastFrameTime = currentFrame;
 
 			char title[256];
-			std::snprintf(title, sizeof(title), "FPS: %.2f", fps);
-			glfwSetWindowTitle(window, title);
+			if (currentFrame - lastTitleUpdateTime > 0.01f)
+			{
+				std::snprintf(title, sizeof(title), "FPS: %.2f", fps);
+				glfwSetWindowTitle(window, title);
+				lastTitleUpdateTime = currentFrame;
 
-			//input
-			processInput(window);
+				//input
+				processInput(window);
+			}
 
 			// rendering commands here
 			glClearColor(0.f, 0.f, 0.f, 1.0f);
